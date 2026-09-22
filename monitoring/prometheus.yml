@@ -8,3 +8,10 @@ scrape_configs:
       - targets: ["app:8000"]
     metrics_path: /metrics
     scrape_interval: 10s
+
+  # for local dev when running uvicorn directly (not via docker-compose)
+  - job_name: "loan-approval-local"
+    static_configs:
+      - targets: ["host.docker.internal:8000"]
+    metrics_path: /metrics
+    scrape_interval: 10s
