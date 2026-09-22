@@ -15,10 +15,40 @@ spec:
       containers:
       - name: mlflow-server
         image: ghcr.io/mlflow/mlflow:v2.16.0
-        command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000"]
+        command:
+          - mlflow
+          - server
+          - --host
+          - "0.0.0.0"
+          - --port
+          - "5000"
+          - --backend-store-uri
+          - sqlite:////mlflow-data/mlflow.db
+          - --default-artifact-root
+          - /mlflow-data/mlartifacts
         ports:
         - containerPort: 5000
         resources:
           requests:
             memory: "256Mi"
             cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: mlflow-db
+          mountPath: /mlflow-data/mlflow.db
+          subPath: mlflow.db
+        - name: mlflow-artifacts
+          mountPath: /mlflow-data/mlartifacts
+      volumes:
+      # mount the sqlite db file directly
+      - name: mlflow-db
+        hostPath:
+          path: /run/desktop/mnt/host/d/Uni Stuff/Final Independence Term/ML-OPS/EndTerm/mlflow.db
+          type: File
+      # mount the artifacts directory
+      - name: mlflow-artifacts
+        hostPath:
+          path: /run/desktop/mnt/host/d/Uni Stuff/Final Independence Term/ML-OPS/EndTerm/mlartifacts
+          type: Directory
