@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+# install only mlflow -- no sklearn, no dice, no heavy ml deps
+# this keeps the image small (~200MB vs 769MB for the app image)
+RUN pip install --no-cache-dir mlflow==3.16.1
+
+WORKDIR /app
+
+EXPOSE 5000
+
+# exec form -- no shell involved so * is never glob-expanded
+CMD ["mlflow", "server", \
+     "--host", "0.0.0.0", \
+     "--port", "5000", \
+     "--allowed-hosts", "*", \
+     "--backend-store-uri", "sqlite:////mlflow-data/mlflow.db", \
+     "--default-artifact-root", "/mlflow-data/mlartifacts"]

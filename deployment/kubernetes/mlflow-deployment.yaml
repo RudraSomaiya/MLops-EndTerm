@@ -14,40 +14,29 @@ spec:
     spec:
       containers:
       - name: mlflow-server
-        image: ghcr.io/mlflow/mlflow:v2.16.0
-        command:
-          - mlflow
-          - server
-          - --host
-          - "0.0.0.0"
-          - --port
-          - "5000"
-          - --backend-store-uri
-          - sqlite:////mlflow-data/mlflow.db
-          - --default-artifact-root
-          - /mlflow-data/mlartifacts
+        # minimal image: only mlflow==3.16.1, ~200MB, matches our db schema
+        # cmd uses exec form so * in --allowed-hosts is never shell-expanded
+        image: mlflow-server:3.16.1
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
         resources:
           requests:
-            memory: "256Mi"
+            memory: "512Mi"
             cpu: "250m"
           limits:
-            memory: "512Mi"
+            memory: "1Gi"
             cpu: "500m"
         volumeMounts:
         - name: mlflow-db
           mountPath: /mlflow-data/mlflow.db
-          subPath: mlflow.db
         - name: mlflow-artifacts
           mountPath: /mlflow-data/mlartifacts
       volumes:
-      # mount the sqlite db file directly
       - name: mlflow-db
         hostPath:
           path: /run/desktop/mnt/host/d/Uni Stuff/Final Independence Term/ML-OPS/EndTerm/mlflow.db
           type: File
-      # mount the artifacts directory
       - name: mlflow-artifacts
         hostPath:
           path: /run/desktop/mnt/host/d/Uni Stuff/Final Independence Term/ML-OPS/EndTerm/mlartifacts
