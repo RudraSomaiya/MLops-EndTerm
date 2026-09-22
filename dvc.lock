@@ -1,7 +1,7 @@
 schema: '2.0'
 stages:
   ingest:
-    cmd: .venv\Scripts\python -m src.ingestion.ingest
+    cmd: uv run python -m src.ingestion.ingest
     deps:
     - path: data/raw/loan_approval_dataset.csv
       hash: md5
@@ -17,7 +17,7 @@ stages:
       md5: c48cb64b934fc5e3f1a23918b6af4b76
       size: 371518
   validate:
-    cmd: .venv\Scripts\python -m src.validation.validate
+    cmd: uv run python -m src.validation.validate
     deps:
     - path: data/processed/ingested.csv
       hash: md5
@@ -33,7 +33,7 @@ stages:
       md5: 18ac7b67c15510ccf71bb1b05aef0cac
       size: 1221
   transform:
-    cmd: .venv\Scripts\python -m src.transformation.transform
+    cmd: uv run python -m src.transformation.transform
     deps:
     - path: data/processed/ingested.csv
       hash: md5
@@ -65,7 +65,7 @@ stages:
       md5: 7f00771dd97c8df0df2361be7c6af623
       size: 10258
   train:
-    cmd: .venv\Scripts\python -m src.training.train
+    cmd: uv run python -m src.training.train
     deps:
     - path: data/processed/X_test.csv
       hash: md5
@@ -90,5 +90,5 @@ stages:
     outs:
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 0cd394430545159ec1b63136a583ef8c
+      md5: 05b484a257712a9cc233af694fba7e59
       size: 861
