@@ -39,17 +39,7 @@ class ModelServing:
         model_uri = f"models:/{model_name}/{latest.version}"
 
         # trusted types must match what was declared in log_model at training time
-        self.pipeline = mlflow.sklearn.load_model(
-            model_uri,
-            dst_path=None,
-            skops_trusted_types=[
-                "sklearn.tree._tree.Tree",
-                "sklearn.tree._classes.DecisionTreeClassifier",
-                "sklearn.ensemble._forest.RandomForestClassifier",
-                "numpy.dtype",
-                "numpy.ndarray",
-            ],
-        )
+        self.pipeline = mlflow.sklearn.load_model(model_uri)
         logger.info(f"loaded model version {latest.version} from run {self.run_id}")
 
         # load raw training data for dice from the same run's artifacts
