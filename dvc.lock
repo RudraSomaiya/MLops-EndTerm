@@ -85,10 +85,10 @@ stages:
       size: 10258
     - path: src/training/train.py
       hash: md5
-      md5: 5d45fb18e51915ff14a1fee94bcbe510
-      size: 5433
+      md5: 5f05c7eea0ce620f45f82c42bcf61fe5
+      size: 5423
     outs:
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 21b09d073bbbe64386ca0ca3bdda87a4
+      md5: 0cd394430545159ec1b63136a583ef8c
       size: 861

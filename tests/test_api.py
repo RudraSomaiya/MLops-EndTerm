@@ -55,10 +55,12 @@ def test_predict_returns_counterfactual_on_rejection():
         "prediction": "rejected",
         "probability": 0.82,
     }
-    mock_serving.explain.return_value = {
-        "changes_needed": {"cibil_score": 720},
-        "outcome_if_changed": "approved",
-    }
+    mock_serving.explain.return_value = [
+        {
+            "changes_needed": {"cibil_score": 720},
+            "outcome_if_changed": "approved",
+        }
+    ]
 
     with patch("app.ModelServing", return_value=mock_serving):
         from app import app
@@ -76,7 +78,9 @@ def test_predict_returns_counterfactual_on_rejection():
             data = response.json()
             assert data["prediction"] == "rejected"
             assert data["counterfactual"] is not None
-            assert "changes_needed" in data["counterfactual"]
+            assert isinstance(data["counterfactual"], list)
+            assert len(data["counterfactual"]) >= 1
+            assert "changes_needed" in data["counterfactual"][0]
 
 
 def test_predict_missing_field_returns_422():

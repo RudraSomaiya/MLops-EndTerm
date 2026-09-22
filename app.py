@@ -47,7 +47,7 @@ class LoanApplication(BaseModel):
 class PredictionResponse(BaseModel):
     prediction: str
     probability: float
-    counterfactual: dict | None = None
+    counterfactual: list | None = None
 
 
 @asynccontextmanager

@@ -79,13 +79,14 @@ class ModelServing:
             "probability": round(float(proba[pred_class]), 4),
         }
 
-    def explain(self, input_dict: dict) -> dict | None:
-        """Generate counterfactual explanation for a rejection."""
+    def explain(self, input_dict: dict) -> list | None:
+        """Generate up to 3 counterfactual explanations for a rejection."""
         try:
             df = pd.DataFrame([input_dict])[FEATURE_ORDER]
+            # request 3 diverse counterfactuals so the user has options
             dice_exp = self.explainer.generate_counterfactuals(
                 query_instances=df,
-                total_CFs=1,
+                total_CFs=3,
                 desired_class="opposite",
             )
 
@@ -93,32 +94,32 @@ class ModelServing:
             cfs_df = cf_example.final_cfs_df
 
             if cfs_df is None or cfs_df.empty:
-                logger.warning("dice could not generate a counterfactual")
+                logger.warning("dice could not generate any counterfactuals")
                 return None
 
-            # extract only the features that changed
-            cf_row = cfs_df.iloc[0]
             original = df.iloc[0]
-            changes = {}
+            results = []
 
-            for col in FEATURE_ORDER:
-                orig_val = original[col]
-                cf_val = cf_row[col]
-                # compare with tolerance for floats
-                if isinstance(orig_val, (int, float, np.integer, np.floating)):
-                    if not np.isclose(float(orig_val), float(cf_val), atol=1e-2):
-                        is_np_num = isinstance(cf_val, (np.integer, np.floating))
-                        changes[col] = int(cf_val) if is_np_num else cf_val
-                elif str(orig_val) != str(cf_val):
-                    changes[col] = str(cf_val)
+            for _, cf_row in cfs_df.iterrows():
+                changes = {}
+                for col in FEATURE_ORDER:
+                    orig_val = original[col]
+                    cf_val = cf_row[col]
+                    # compare with tolerance for floats
+                    if isinstance(orig_val, (int, float, np.integer, np.floating)):
+                        if not np.isclose(float(orig_val), float(cf_val), atol=1e-2):
+                            is_np_num = isinstance(cf_val, (np.integer, np.floating))
+                            changes[col] = int(cf_val) if is_np_num else cf_val
+                    elif str(orig_val) != str(cf_val):
+                        changes[col] = str(cf_val)
 
-            if not changes:
-                return None
+                if changes:
+                    results.append({
+                        "changes_needed": changes,
+                        "outcome_if_changed": "approved",
+                    })
 
-            return {
-                "changes_needed": changes,
-                "outcome_if_changed": "approved",
-            }
+            return results if results else None
 
         except Exception as e:
             logger.error(f"counterfactual generation failed: {e}")
