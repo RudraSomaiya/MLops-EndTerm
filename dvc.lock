@@ -1,0 +1,94 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: .venv\Scripts\python -m src.ingestion.ingest
+    deps:
+    - path: data/raw/loan_approval_dataset.csv
+      hash: md5
+      md5: 3d8ecb6acc324137fe4affc13655564f
+      size: 384337
+    - path: src/ingestion/ingest.py
+      hash: md5
+      md5: c41a3171a3e424350e90b959f93e0a92
+      size: 1206
+    outs:
+    - path: data/processed/ingested.csv
+      hash: md5
+      md5: c48cb64b934fc5e3f1a23918b6af4b76
+      size: 371518
+  validate:
+    cmd: .venv\Scripts\python -m src.validation.validate
+    deps:
+    - path: data/processed/ingested.csv
+      hash: md5
+      md5: c48cb64b934fc5e3f1a23918b6af4b76
+      size: 371518
+    - path: src/validation/validate.py
+      hash: md5
+      md5: 13658f94153537874371900076ad7158
+      size: 5088
+    outs:
+    - path: data/processed/validation_report.json
+      hash: md5
+      md5: 18ac7b67c15510ccf71bb1b05aef0cac
+      size: 1221
+  transform:
+    cmd: .venv\Scripts\python -m src.transformation.transform
+    deps:
+    - path: data/processed/ingested.csv
+      hash: md5
+      md5: c48cb64b934fc5e3f1a23918b6af4b76
+      size: 371518
+    - path: src/transformation/transform.py
+      hash: md5
+      md5: c1ce2631d73c7de7a3d02bd6092e0ce3
+      size: 1248
+    outs:
+    - path: data/processed/X_test.csv
+      hash: md5
+      md5: 2856f5f4e2661cd7562fa5db95a55ade
+      size: 62632
+    - path: data/processed/X_train.csv
+      hash: md5
+      md5: 49579a8dcb8ea44af809864901366d6d
+      size: 250382
+    - path: data/processed/X_train_raw.csv
+      hash: md5
+      md5: 49579a8dcb8ea44af809864901366d6d
+      size: 250382
+    - path: data/processed/y_test.csv
+      hash: md5
+      md5: 1eb4420943b35e0f6157b5b5a392af67
+      size: 2575
+    - path: data/processed/y_train.csv
+      hash: md5
+      md5: 7f00771dd97c8df0df2361be7c6af623
+      size: 10258
+  train:
+    cmd: .venv\Scripts\python -m src.training.train
+    deps:
+    - path: data/processed/X_test.csv
+      hash: md5
+      md5: 2856f5f4e2661cd7562fa5db95a55ade
+      size: 62632
+    - path: data/processed/X_train.csv
+      hash: md5
+      md5: 49579a8dcb8ea44af809864901366d6d
+      size: 250382
+    - path: data/processed/y_test.csv
+      hash: md5
+      md5: 1eb4420943b35e0f6157b5b5a392af67
+      size: 2575
+    - path: data/processed/y_train.csv
+      hash: md5
+      md5: 7f00771dd97c8df0df2361be7c6af623
+      size: 10258
+    - path: src/training/train.py
+      hash: md5
+      md5: 5d45fb18e51915ff14a1fee94bcbe510
+      size: 5433
+    outs:
+    - path: data/processed/model_comparison.json
+      hash: md5
+      md5: 21b09d073bbbe64386ca0ca3bdda87a4
+      size: 861

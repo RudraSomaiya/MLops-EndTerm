@@ -1,6 +1,6 @@
 stages:
   ingest:
-    cmd: python -m src.ingestion.ingest
+    cmd: .venv\Scripts\python -m src.ingestion.ingest
     deps:
       - data/raw/loan_approval_dataset.csv
       - src/ingestion/ingest.py
@@ -8,7 +8,7 @@ stages:
       - data/processed/ingested.csv
 
   validate:
-    cmd: python -m src.validation.validate
+    cmd: .venv\Scripts\python -m src.validation.validate
     deps:
       - data/processed/ingested.csv
       - src/validation/validate.py
@@ -16,7 +16,7 @@ stages:
       - data/processed/validation_report.json
 
   transform:
-    cmd: python -m src.transformation.transform
+    cmd: .venv\Scripts\python -m src.transformation.transform
     deps:
       - data/processed/ingested.csv
       - src/transformation/transform.py
@@ -28,7 +28,7 @@ stages:
       - data/processed/X_train_raw.csv
 
   train:
-    cmd: python -m src.training.train
+    cmd: .venv\Scripts\python -m src.training.train
     deps:
       - data/processed/X_train.csv
       - data/processed/X_test.csv

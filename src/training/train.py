@@ -1,4 +1,9 @@
 import json
+import sys
+
+# mlflow prints emoji in run URLs -- reconfigure stdout to utf-8 so it doesn't crash on windows
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 import mlflow
 import mlflow.sklearn
@@ -96,7 +101,18 @@ def train_and_evaluate():
             mlflow.log_metrics(metrics)
 
             # log the full pipeline so it can be loaded directly for inference
-            mlflow.sklearn.log_model(pipe, artifact_path="model")
+            # skops requires explicit trust for tree internals -- safe since we trained the model
+            mlflow.sklearn.log_model(
+                pipe,
+                artifact_path="model",
+                skops_trusted_types=[
+                    "sklearn.tree._tree.Tree",
+                    "sklearn.tree._classes.DecisionTreeClassifier",
+                    "sklearn.ensemble._forest.RandomForestClassifier",
+                    "numpy.dtype",
+                    "numpy.ndarray",
+                ],
+            )
 
             # dice needs the raw training data to generate counterfactuals
             raw_path = processed_dir / "X_train_raw.csv"
