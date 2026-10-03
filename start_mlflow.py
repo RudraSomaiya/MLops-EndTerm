@@ -13,4 +13,7 @@ sys.argv = [
 ]
 
 from mlflow.cli import cli  # noqa: E402
-cli(standalone_mode=True)
+
+# click also expands wildcards in arguments on windows, which would turn "*"
+# into the file names in this folder, so switch that off explicitly
+cli.main(args=sys.argv[1:], windows_expand_args=False)
